@@ -1,4 +1,4 @@
-
+USE employee_db;
 -- seeds for the department table
 INSERT INTO department
     (dept_name)

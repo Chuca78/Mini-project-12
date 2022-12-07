@@ -4,7 +4,6 @@
 // npm install --save mysql2
 // npm install dotenv
 
-
 // load dependencies
 const inquirer = require('inquirer');
 const express = require('express');
@@ -12,6 +11,7 @@ const mysql = require('mysql2');
 require('dotenv').config();
 require('console.table');
 
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 // Express middleware
@@ -20,14 +20,19 @@ app.use(express.json());
 
 // Connect to database
 const connection = mysql.createConnection(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  // process.env.DB_HOST,
+  // process.env.DB_USER,
+  // process.env.DB_PASSWORD,
+  // process.env.DB_NAME,
+
   {
-    host: 'localhost',
-    dialect: 'mysql',
-    port: 3001
-  }
+  host: 'localhost',
+  user: 'root',
+  password: 'Gwendolyn__427',
+  database: 'employee_db'
+  },
+
+  
 );
 console.log(`Connected to the company_db database.`)
 
@@ -117,13 +122,13 @@ function viewAll() {
     "JOIN roles ON roles.id = employees.role_id " +
     "JOIN department ON roles.department_id = department.id " +
     "ORDER BY employees.id;";
-  // connect to mySQL useing query instruction to access employees table
+  // connect to mySQL using query instruction to access employees table
   connection.query(query, function(err, res) {      
     // throw error if there is issue accessing data
     if (err) throw err;
     // add manager names to the manager_id col to be displayed in terminal
     for(i = 0; i < res.length; i++) {
-      // if manager_Id contains a "0" then lable it as "None"
+      // if manager_Id contains a "0" then label it as "None"
       if(res[i].manager_id == 0) {              
         res[i].manager = "None"           
       }
@@ -145,7 +150,7 @@ function viewAll() {
 function viewDept() {
   // SQL command to get data from department table
   let query = "SELECT department.dept_name AS departments FROM department;";
-  // connect to mySQL useing query instruction to access departments table
+  // connect to mySQL using query instruction to access departments table
   connection.query(query, function(err, res) {      
     // throw error if the is issue accessing data
     if (err) throw err;
@@ -160,7 +165,7 @@ function viewDept() {
 function viewRoles() {
   // SQL command to get data from roles table
   let query = "SELECT roles.title, roles.salary, department.dept_name AS department FROM roles INNER JOIN department ON department.id = roles.department_id;";
-  // connect to mySQL useing query instruction to access roles table
+  // connect to mySQL using query instruction to access roles table
   connection.query(query, function(err, res) {      
     // throw error if the is issue accessing data
     if (err) throw err;
@@ -194,7 +199,7 @@ function addEmployee() {
     if (err) throw err;
     // add manager names to the manager_id col to be displayed in terminal
     for(i = 0; i < res.length; i++) {
-      // if manager_Id contains a "0" then lable it as "None"
+      // if manager_Id contains a "0" then label it as "None"
       if(res[i].manager_id == 0) {                  
         res[i].manager = "None"               
       }
@@ -225,20 +230,20 @@ function addEmployee() {
         name: "select_role",
         type: "list",
         message: "Select new employee's role.",
-        // dynamic choises using rolesList (title col of roles table)
+        // dynamic choices using rolesList (title col of roles table)
         choices: function() {                      
-          // init roles array - used to return existing roles titles as choises array prompted to user
+          // init roles array - used to return existing roles titles as choices array prompted to user
           roles = [];                      
           // loop through rolesList to extract the role titles from rolesList which is an object array containing data from roles table in the form of rowPackets
           for(i = 0; i < rolesList.length; i++) {                          
-            // looping parameter "i" will allways align with the table index, therefore by adding 1 we have effectivly converted it to match table id's
+            // looping parameter "i" will always align with the table index, therefore by adding 1 we have effectively converted it to match table id's
             const roleId = i + 1;
-            // concat roleId and title strings and push the resulting string into our roles (choises) array 
+            // concat roleId and title strings and push the resulting string into our roles (choices) array 
             roles.push(roleId + ": " + rolesList[i].title);
           };                      
-          // add string "0: Quit" to the beginning of roles (choises)
+          // add string "0: Quit" to the beginning of roles (choices)
           roles.unshift("0: Quit");
-          // return roles (choises) array to be rendered by inquirer to the user 
+          // return roles (choices) array to be rendered by inquirer to the user 
           return roles;          
         }                  
       },
@@ -246,22 +251,22 @@ function addEmployee() {
         name: "select_manager",
         type: "list",
         message: "Select new employee's manager",                  
-        // dynamic choises using managerList (first_name and last_name cols of employees table)
+        // dynamic choices using managerList (first_name and last_name cols of employees table)
         choices: function() {                      
-          // init managers array - used to return existing employee names as choises array prompted to user
+          // init managers array - used to return existing employee names as choices array prompted to user
           managers = [];        
           // loop through managerList to extract the employee names from managerList which is an object array containing data from employees table in the form of rowPackets
           for(i = 0; i < managerList.length; i++) {                          
-            // looping parameter "i" will allways align with the table index, therefore by adding 1 we have effectivly converted it to match table id's
+            // looping parameter "i" will always align with the table index, therefore by adding 1 we have effectively converted it to match table id's
             const mId = i + 1;
-            // concat mId, first_name, and last_name strings and push the resulting string into our managers (choises) array
+            // concat mId, first_name, and last_name strings and push the resulting string into our managers (choices) array
             managers.push(mId + ": " + managerList[i].first_name + " " + managerList[i].last_name);                          
           };                      
-          // add string "0: None" to the beginning of managers (choises)
+          // add string "0: None" to the beginning of managers (choices)
           managers.unshift("0: None");
-          // add string "E: Quit" to the beginning of managers (choises)
+          // add string "E: Quit" to the beginning of managers (choices)
           managers.unshift("E: Quit");
-          // return managers (choises) array to be rendered by inquirer to the user 
+          // return managers (choices) array to be rendered by inquirer to the user 
           return managers;
         },
         when: function( answers ) {                              
@@ -271,7 +276,7 @@ function addEmployee() {
     ];          
     // prompt user actions using inquirer 
     inquirer.prompt(addEmpPrompt)
-    // await user responce from inquirer
+    // await user response from inquirer
     .then(function(answer) {
     // if user selects Quit return to main menu
     if(answer.select_role == "0: Quit" || answer.select_manager == "E: Quit") {
@@ -287,9 +292,9 @@ function addEmployee() {
       {
         first_name: answer.first_name,
         last_name: answer.last_name,                      
-        // new emplyees table role_id col value is extracted by parsing roleId from the selected roles array string and converting it to int
+        // new employees table role_id col value is extracted by parsing roleId from the selected roles array string and converting it to int
         role_id: parseInt(answer.select_role.split(":")[0]),
-        // new emplyees table manager_id col value is extracted by parsing mId from the selected managers array string and converting it to int
+        // new employees table manager_id col value is extracted by parsing mId from the selected managers array string and converting it to int
         manager_id: parseInt(answer.select_manager.split(":")[0])
       },
       function(err, res){
@@ -297,7 +302,7 @@ function addEmployee() {
         if (err) throw err;                  
       })
       // array of actions to prompt user
-      let addagainPrompt = [
+      let addAgainPrompt = [
         {                  
           name: "again",
           type: "list",
@@ -306,8 +311,8 @@ function addEmployee() {
         }
       ];
       // prompt user actions using inquirer 
-      inquirer.prompt(addagainPrompt)
-      // await user responce from inquirer
+      inquirer.prompt(addAgainPrompt)
+      // await user response from inquirer
       .then(function(answer) {
         // SQL command to get employee first_name/ last_name/ manager id, role title/ salary and department name data from employees, roles, and department tables
         let query =
@@ -329,7 +334,7 @@ function addEmployee() {
           else if(answer.again == "Quit") {
             // add manager names to the manager_id col to be displayed in terminal
             for(i = 0; i < res.length; i++) {
-              // if manager_Id contains a "0" then lable it as "None"
+              // if manager_Id contains a "0" then label it as "None"
               if(res[i].manager_id == 0) {                                      
                 res[i].manager = "None"                                   
               }
@@ -373,7 +378,7 @@ function addDept() {
     ];      
     // prompt user actions using inquirer 
     inquirer.prompt(addDeptPrompt)
-    // await user responce from inquirer
+    // await user response from inquirer
     .then(function(answer) {
       console.log(answer);
       // SQL command to insert new data in department table
@@ -381,14 +386,14 @@ function addDept() {
       // connect to mySQL using query instruction to insert new company department in department table
       connection.query(query,
       {
-          // write new department srting from user answers to dept_name col in department table, which has auto generated id so only one item import is needed
+          // write new department string from user answers to dept_name col in department table, which has auto generated id so only one item import is needed
           dept_name: answer.new_department
       }, function(err, res){
           // throw error if there is issue writing data
           if (err) throw err;              
       });          
       // array of actions to prompt user
-      let addagainPrompt = [
+      let addAgainPrompt = [
         {
           name: "again",
           type: "list",
@@ -397,8 +402,8 @@ function addDept() {
         },
       ];
       // prompt user actions using inquirer 
-      inquirer.prompt(addagainPrompt)
-      // await user responce from inquirer
+      inquirer.prompt(addAgainPrompt)
+      // await user response from inquirer
       .then(function(answer) {
           // SQL command to get data from department table
           let query = "SELECT department.dept_name FROM department" ;
@@ -428,7 +433,7 @@ function addDept() {
 function addRole() {
   // SQL command to get data from roles table and data from department.dept_name where department.id = roles.department_id
   let query1 = "SELECT roles.title AS roles, roles.salary, department.dept_name FROM roles INNER JOIN department ON department.id = roles.department_id;";
-  // SQL command to get dept_name data from department table - used for prompting list of availible departments to pick from
+  // SQL command to get dept_name data from department table - used for prompting list of available departments to pick from
   let query2 = "SELECT department.dept_name FROM department" ;
   // connect to mySQL using query instruction 1 to access data from roles & department tables
   connection.query(query1, function(err, res){
@@ -458,27 +463,27 @@ function addRole() {
       name: "select_department",
       type: "list",
       message: "Select a department.",
-      // dynamic choises using departmentList (dept_name col of department table)
+      // dynamic choices using departmentList (dept_name col of department table)
       choices: function() {                      
-        // init departments array - used to return existing department names as choises array prompted to user 
+        // init departments array - used to return existing department names as choices array prompted to user 
         departments = [];                      
-        // loop through departmentList to extract the department names from depatmentList which is an object array containing data from department table in the form of rowPackets
+        // loop through departmentList to extract the department names from departmentList which is an object array containing data from department table in the form of rowPackets
         for(i = 0; i < departmentList.length; i++) {                           
-          // looping parameter "i" will allways align with the table index, therefore by adding 1 we have effectivly converted it to match table id's 
+          // looping parameter "i" will always align with the table index, therefore by adding 1 we have effectively converted it to match table id's 
           const roleId = i + 1;
-          // concat roleId and dept_name strings and push the resulting string into our departments (choises) array 
+          // concat roleId and dept_name strings and push the resulting string into our departments (choices) array 
           departments.push(roleId + ": " + departmentList[i].dept_name);
         };                      
-        // add string "0: Quit" to the beginning of departments (choises)
+        // add string "0: Quit" to the beginning of departments (choices)
         departments.unshift("0: Quit");
-        // return departments (choises) array to be rendered by inquirer to the user 
+        // return departments (choices) array to be rendered by inquirer to the user 
         return departments;
       }
     }          
   ];        
     // prompt user actions using inquirer 
     inquirer.prompt(addRolePrompt)
-    // await user responce from inquirer
+    // await user response from inquirer
     .then(function(answer) {
       // if user selects Quit return to main menu
       if(answer.select_department == "0: Quit") {
@@ -501,7 +506,7 @@ function addRole() {
             if (err) throw err;                      
           });
           // array of actions to prompt user
-          let addagainPrompt = [
+          let addAgainPrompt = [
               {
                 name: "again",
                 type: "list",
@@ -510,8 +515,8 @@ function addRole() {
               },
           ];
     // prompt user actions using inquirer 
-    inquirer.prompt(addagainPrompt)
-    // await user responce from inquirer
+    inquirer.prompt(addAgainPrompt)
+    // await user response from inquirer
     .then(function(answer) {
         // SQL command to get data from roles table and data from department.dept_name where department.id = roles.department_id
         let query = "SELECT roles.id, roles.title AS roles, roles.salary, department.dept_name FROM roles INNER JOIN department ON department.id = roles.department_id;";
@@ -562,7 +567,7 @@ function updateEmployee() {
       if (err) throw err;
       // add manager names to the manager_id col to be displayed in terminal
       for(i = 0; i < res.length; i++) {
-        // if manager_Id contains a "0" then lable it as "None"
+        // if manager_Id contains a "0" then label it as "None"
         if(res[i].manager_id == 0) {                  
           res[i].manager = "None"               
         }
@@ -583,27 +588,27 @@ function updateEmployee() {
           name: "select_employee",
           type: "list",
           message: "Select employee to edit",                  
-          // dynamic choises using managerList (first_name and last_name cols of employees table)
+          // dynamic choices using managerList (first_name and last_name cols of employees table)
           choices: function() {                      
-          // init managers array - used to return existing employee names as choises array prompted to user
+          // init managers array - used to return existing employee names as choices array prompted to user
           employees = [];          
           // loop through managerList to extract the employee names from managerList which is an object array containing data from employees table in the form of rowPackets
           for(i = 0; i < employeeList.length; i++) {                          
-            // looping parameter "i" will allways align with the table index, therefore by adding 1 we have effectivly converted it to match table id's
+            // looping parameter "i" will always align with the table index, therefore by adding 1 we have effectively converted it to match table id's
             const mId = i + 1;
-            // concat mId, first_name, and last_name strings and push the resulting string into our managers (choises) array
+            // concat mId, first_name, and last_name strings and push the resulting string into our managers (choices) array
             employees.push(mId + ": " + employeeList[i].first_name + " " + employeeList[i].last_name);                          
           };                      
-          // add string "0: None" to the beginning of managers (choises)
+          // add string "0: None" to the beginning of managers (choices)
           employees.unshift("0: Quit");
-          // return managers (choises) array to be rendered by inquirer to the user 
+          // return managers (choices) array to be rendered by inquirer to the user 
           return employees;          
           }                  
         }
       ];          
     // prompt user actions using inquirer 
     inquirer.prompt(addEmpPrompt)
-    // await user responce from inquirer
+    // await user response from inquirer
     .then(function(answer) {
       // if user selects "0: Quit" return to main menu
       if(answer.select_employee == "0: Quit") {
@@ -617,20 +622,20 @@ function updateEmployee() {
           name: "select_role",
           type: "list",
           message: "Edit employee role.",      
-          // dynamic choises using rolesList (title col of roles table)
+          // dynamic choices using rolesList (title col of roles table)
           choices: function() {                              
-            // init roles array - used to return existing roles titles as choises array prompted to user
+            // init roles array - used to return existing roles titles as choices array prompted to user
             roles = [];                              
             // loop through rolesList to extract the role titles from rolesList which is an object array containing data from roles table in the form of rowPackets
             for(i = 0; i < rolesList.length; i++) {                                  
-              // looping parameter "i" will allways align with the table index, therefore by adding 1 we have effectivly converted it to match table id's
+              // looping parameter "i" will always align with the table index, therefore by adding 1 we have effectively converted it to match table id's
               const roleId = i + 1;      
-              // concat roleId and title strings and push the resulting string into our roles (choises) array 
+              // concat roleId and title strings and push the resulting string into our roles (choices) array 
               roles.push(roleId + ": " + rolesList[i].title);      
             };
-            // add string "0: Quit" to the beginning of roles (choises)
+            // add string "0: Quit" to the beginning of roles (choices)
             roles.unshift("0: Quit");                              
-            // return roles (choises) array to be rendered by inquirer to the user 
+            // return roles (choices) array to be rendered by inquirer to the user 
             return roles;                  
           }                          
         },      
@@ -638,25 +643,25 @@ function updateEmployee() {
           name: "select_manager",
           type: "list",
           message: "Edit employee manager",
-          // dynamic choises using managerList (first_name and last_name cols of employees table)
+          // dynamic choices using managerList (first_name and last_name cols of employees table)
           choices: function() {                              
-            // init managers array - used to return existing employee names as choises array prompted to user
+            // init managers array - used to return existing employee names as choices array prompted to user
             managers = [];                  
             // loop through managerList to extract the employee names from managerList which is an object array containing data from employees table in the form of rowPackets
             for(i = 0; i < employeeList.length; i++) {                                  
-              // looping parameter "i" will allways align with the table index, therefore by adding 1 we have effectivly converted it to match table id's
+              // looping parameter "i" will always align with the table index, therefore by adding 1 we have effectively converted it to match table id's
               const mId = i + 1;
-              // filter out emplyee from managers (choises) array that matches user selection of employee to edit
+              // filter out employee from managers (choices) array that matches user selection of employee to edit
               if(answer.select_employee.split(": ")[1] !== employeeList[i].first_name + " " + employeeList[i].last_name) {          
-                // concat mId, first_name, and last_name strings and push the resulting string into our managers (choises) array
+                // concat mId, first_name, and last_name strings and push the resulting string into our managers (choices) array
                 managers.push(mId + ": " + employeeList[i].first_name + " " + employeeList[i].last_name);
               };                                  
             };                              
-            // add string "0: None" to the beginning of managers (choises)
+            // add string "0: None" to the beginning of managers (choices)
             managers.unshift("0: None");
-            // add string "E: Quit" to the beginning of managers (choises)
+            // add string "E: Quit" to the beginning of managers (choices)
             managers.unshift("E: Quit");
-            // return managers (choises) array to be rendered by inquirer to the user 
+            // return managers (choices) array to be rendered by inquirer to the user 
             return managers;                  
           },
           when: function( answers ) {                              
@@ -666,7 +671,7 @@ function updateEmployee() {
         ];
         // prompt user actions using inquirer 
         inquirer.prompt(empPropPrompt)
-        // await user responce from inquirer
+        // await user response from inquirer
         .then(function(answer) {
           // if user selects "0: Quit" return to main menu
           if(answer.select_role == "0: Quit" || answer.select_manager == "E: Quit") {
@@ -680,9 +685,9 @@ function updateEmployee() {
             // connect to mySQL using query instruction to insert new employee in employee table
             connection.query(query,
             {                              
-              // new emplyees table role_id col value is extracted by parsing roleId from the selected roles array string and converting it to int
+              // new employees table role_id col value is extracted by parsing roleId from the selected roles array string and converting it to int
               role_id: parseInt(answer.select_role.split(":")[0]),          
-              // new emplyees table manager_id col value is extracted by parsing mId from the selected managers array string and converting it to int
+              // new employees table manager_id col value is extracted by parsing mId from the selected managers array string and converting it to int
               manager_id: parseInt(answer.select_manager.split(":")[0])          
             },
             function(err, res){          
@@ -690,7 +695,7 @@ function updateEmployee() {
               if (err) throw err;                          
             });          
             // array of actions to prompt user
-            let addagainPrompt = [          
+            let addAgainPrompt = [          
               {                          
               name: "again",
               type: "list",
@@ -699,8 +704,8 @@ function updateEmployee() {
               }          
             ];          
             // prompt user actions using inquirer 
-            inquirer.prompt(addagainPrompt)          
-            // await user responce from inquirer
+            inquirer.prompt(addAgainPrompt)          
+            // await user response from inquirer
             .then(function(answer) {          
                 // SQL command to get employee first_name/ last_name/ manager id, role title/ salary and department name data from employees, roles, and department tables
                 let query =
@@ -722,7 +727,7 @@ function updateEmployee() {
                 else if(answer.again == "Quit") {
                   // add manager names to the manager_id col to be displayed in terminal
                   for(i = 0; i < res.length; i++) {
-                    // if manager_Id contains a "0" then lable it as "None"
+                    // if manager_Id contains a "0" then label it as "None"
                     if(res[i].manager_id == 0) {
                       res[i].manager = "None" 
                     }else{
@@ -774,18 +779,18 @@ function deleteEmployee() {
           name: "select_employee",
           type: "list",
           message: "Terminate employee",
-          // dynamic choises using employeeList (first_name and last_name cols of employees table)
+          // dynamic choices using employeeList (first_name and last_name cols of employees table)
           choices: function() {
-              // init employees array - used to return existing employee names as choises array prompted to user
+              // init employees array - used to return existing employee names as choices array prompted to user
               employees = [];
               // loop through employeeList to extract the employee names from employeeList which is an object array containing data from employees table in the form of rowPackets
               for(i = 0; i < employeeList.length; i++) {
-                  // concat mId, first_name, and last_name strings and push the resulting string into our employees (choises) array
+                  // concat mId, first_name, and last_name strings and push the resulting string into our employees (choices) array
                   employees.push(employeeList[i].id + ": " + employeeList[i].employee);
               };
-              // add string "0: None" to the beginning of employees (choises)
+              // add string "0: None" to the beginning of employees (choices)
               employees.unshift("0: Quit");
-              // return employees (choises) array to be rendered by inquirer to the user 
+              // return employees (choices) array to be rendered by inquirer to the user 
               return employees;
           }
         },
@@ -798,7 +803,6 @@ function deleteEmployee() {
           },
           // prompt user to pick between Yes and No
           choices: ["Yes","No"],
-          // dont use this prompt if user selected Quit in previous prompt
           when: function( answers ) {
             return answers.select_employee !== "0: Quit";
           } 
@@ -806,7 +810,7 @@ function deleteEmployee() {
       ];
       // prompt user actions using inquirer 
       inquirer.prompt(addEmpPrompt)
-      // await user responce from inquirer
+      // await user response from inquirer
       .then(function(answer) {
           // if user selects "0: Quit" return to main menu
           if(answer.select_employee == "0: Quit") {
@@ -827,7 +831,7 @@ function deleteEmployee() {
               if (err) throw err;
             });
             // array of actions to prompt user
-            let addagainPrompt = [
+            let addAgainPrompt = [
               {
                 name: "again",
                 type: "list",
@@ -836,8 +840,8 @@ function deleteEmployee() {
               }
             ];
             // prompt user actions using inquirer 
-            inquirer.prompt(addagainPrompt)
-            // await user responce from inquirer
+            inquirer.prompt(addAgainPrompt)
+            // await user response from inquirer
             .then(function(answer) {
               // SQL command to get data from employees table
               let query = "SELECT employees.id, employees.first_name, employees.last_name FROM employees;";
