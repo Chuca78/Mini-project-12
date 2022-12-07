@@ -23,7 +23,8 @@ const connection = mysql.createConnection(
   {
     host: 'localhost',
     user: 'root',
-    password: 'Gwendolyn__427',
+    // todo: add password to run
+    password: '',
     database: 'company_db'
   },
 
