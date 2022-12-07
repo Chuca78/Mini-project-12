@@ -1,5 +1,7 @@
-USE employee_db;
--- seeds for the department table
+-- Select employee_db as the database to utilize and perform SQL operations on
+USE company_db;
+
+-- Insert the following items to table department
 INSERT INTO department
     (dept_name)
 VALUES
@@ -8,8 +10,7 @@ VALUES
     ("Finance"),
     ("Legal");
 
-
--- seeds for the role table
+-- Insert the following items to table role
 INSERT INTO roles
     (title, salary, department_id)
 VALUES
@@ -22,9 +23,9 @@ VALUES
     ("Legal Team Lead", "250000", 4),
     ("Lawyer", "190000", 4);
 
--- seeds for the employee table
+-- Insert the following items to table employees
 INSERT INTO employees
-    (first_name, last_name, roles_id, manager_id)
+    (first_name, last_name, role_id, manager_id)
 VALUES
     ("John", "Doe", 1, 0),
     ("Mike", "Chan", 2, 1),
