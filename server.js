@@ -22,17 +22,10 @@ app.use(express.json());
 const connection = mysql.createConnection(
   {
     host: 'localhost',
-    user: 'root',
-    // todo: add password to run
-    password: 'Gwendolyn__427',
-    database: 'company_db'
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   },
-
-  // todo: add env to hide password
-  // process.env.DB_HOST,
-  // process.env.DB_USER,
-  // process.env.DB_PASSWORD,
-  // process.env.DB_NAME,
 
     console.log(`Connected to the company_db database.`)
 );
