@@ -29,7 +29,8 @@ To start the application, please type the following command in the terminal:
 ```
 node server
 ```
-![Screenshot 2022-12-08 061211](https://user-images.githubusercontent.com/97859682/206432938-36c8a0bb-5ca3-48ec-bf0a-9fc2e8dbd516.png)
+
+[Employee-tracker.webm](https://user-images.githubusercontent.com/97859682/209335384-5426dc9f-d2f1-4e26-9923-e07a3c38f644.webm)
 
 ## Credits
 
