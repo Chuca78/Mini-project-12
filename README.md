@@ -29,6 +29,7 @@ To start the application, please type the following command in the terminal:
 ```
 node server
 ```
+
 ![Screenshot 2022-12-08 061211](https://user-images.githubusercontent.com/97859682/206432938-36c8a0bb-5ca3-48ec-bf0a-9fc2e8dbd516.png)
 
 ## Credits
@@ -52,7 +53,7 @@ N/A
 Tim Fleck<br />
 Full-Stack Developer<br />
 [CHUCA78](https://github.com/Chuca78) ![Github](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)<br />
-t.fleck@hotmail.com
+tfleck78@gmail.com
 
 ## Copyright
 
